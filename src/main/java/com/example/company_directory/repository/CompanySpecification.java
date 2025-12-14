@@ -1,5 +1,5 @@
 package com.example.company_directory.repository;
 
-public class CompanyRepository {
+public interface CompanySpecification {
     
 }

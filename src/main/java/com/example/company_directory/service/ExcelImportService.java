@@ -1,5 +1,6 @@
 package com.example.company_directory.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -39,14 +40,14 @@ public class ExcelImportService {
         this.zipMasterRepository = zipMasterRepository;
     }
 
-    //Excel検証結果を返す
-    //ファイル構造チェック→データエラーチェック→データ警告チェック
+    // Excel検証結果を返す
+    // ファイル構造チェック→データエラーチェック→データ警告チェック
     public ImportResultDto importExcel(InputStream inputStream) {
 
         List<ImportRowDto> rows = ExcelHelper.parseExcel(inputStream);
-    
+
         ImportResultDto result = new ImportResultDto();
-    
+
         // --- Excel 内の同名企業 / 同住所チェック用 ---
         Map<String, List<Integer>> nameToRows = new HashMap<>();
         Map<String, List<Integer>> addressToRows = new HashMap<>();
@@ -70,7 +71,7 @@ public class ExcelImportService {
         int success = 0;
         int worning = 0;
         int error = 0;
-    
+
         for (ImportRowDto row : rows) {
             List<String> errs = validateRow(row, excelCompanyIdSet, dbCompanyIdSet);
 
@@ -87,7 +88,7 @@ public class ExcelImportService {
                         row.setUpdate(exists);
                     } catch (NumberFormatException e) {
                         // IDが数値でない場合はバリデーションで弾かれているはずだが念のため
-                        row.setUpdate(false); 
+                        row.setUpdate(false);
                     }
                 } else {
                     // IDなしなら「新規(自動採番)」
@@ -98,7 +99,7 @@ public class ExcelImportService {
 
                 List<String> warns = checkWarning(row, nameToRows, addressToRows);
 
-                if (warns.isEmpty()){
+                if (warns.isEmpty()) {
                     result.getSuccessList().add(row);
                     success++;
                 } else {
@@ -115,12 +116,12 @@ public class ExcelImportService {
                 error++;
             }
         }
-    
+
         result.setTotalCount(rows.size());
         result.setSuccessCount(success);
         result.setWarningCount(worning);
         result.setErrorCount(error);
-    
+
         return result;
     }
 
@@ -128,7 +129,7 @@ public class ExcelImportService {
         return s == null || s.trim().isEmpty();
     }
 
-    //行データのエラーチェック
+    // 行データのエラーチェック
     private List<String> validateRow(ImportRowDto row, Set<String> excelCompanyIdSet, Set<String> dbCompanyIdSet) {
         List<String> errors = new ArrayList<>();
 
@@ -189,24 +190,23 @@ public class ExcelImportService {
             }
         }
 
-
         // -------- 6. 文字数オーバー --------
-        //企業名
+        // 企業名
         if (!isBlank(row.getCompanyName()) && row.getCompanyName().length() > 100) {
             errors.add("エラー：企業名の文字数が上限（100文字）を超えています。");
         }
 
-        //住所
+        // 住所
         if (!isBlank(row.getAddress()) && row.getAddress().length() > 200) {
             errors.add("エラー：住所の文字数が上限（200文字）を超えています。");
         }
 
-        //郵便番号
+        // 郵便番号
         if (!isBlank(row.getZipCode()) && row.getZipCode().length() > 8) {
             errors.add("エラー：郵便番号の文字数が上限（8文字）を超えています。");
         }
 
-        //備考
+        // 備考
         if (!isBlank(row.getRemarks()) && row.getRemarks().length() > 1000) {
             errors.add("エラー：項目の文字数が上限を超えています（備考は1000文字まで）。");
         }
@@ -219,12 +219,13 @@ public class ExcelImportService {
     }
 
     private LocalDate parseFlexibleDate(String text) {
-        if (isBlank(text)) return null;
+        if (isBlank(text))
+            return null;
         String t = text.trim();
         // try some common patterns in order:
         String[] patterns = {
-            "yyyy-MM-dd", "yyyy/MM/dd", "yyyy-M-d", "yyyy/M/d", "yyyy年MM月dd日",
-            "M/d/yy", "MM/dd/yy", "M/d/yyyy", "MM/dd/yyyy"
+                "yyyy-MM-dd", "yyyy/MM/dd", "yyyy-M-d", "yyyy/M/d", "yyyy年MM月dd日",
+                "M/d/yy", "MM/dd/yy", "M/d/yyyy", "MM/dd/yyyy"
         };
         for (String p : patterns) {
             try {
@@ -242,14 +243,15 @@ public class ExcelImportService {
         }
     }
 
-    //行データの警告チェック
-    private List<String> checkWarning(ImportRowDto row, Map<String, List<Integer>> excelNameToRows, Map<String, List<Integer>> excelAddressToRows) {
+    // 行データの警告チェック
+    private List<String> checkWarning(ImportRowDto row, Map<String, List<Integer>> excelNameToRows,
+            Map<String, List<Integer>> excelAddressToRows) {
         List<String> warnings = new ArrayList<>();
 
         String name = normalizeString(row.getCompanyName());
         String addr = normalizeString(row.getAddress());
 
-        //正式な企業名かと存在する企業名なのかチェックをする処理を後で追加
+        // 正式な企業名かと存在する企業名なのかチェックをする処理を後で追加
 
         // 1) Excel内：同名企業（自分以外の行がある場合）
         if (name != null && !name.isEmpty()) {
@@ -273,7 +275,7 @@ public class ExcelImportService {
                 warnings.add("警告：" + buildDuplicateMessage("アップロードデータ内で同じ住所が複数あります。", otherLines));
             }
         }
-    
+
         // 3) DBとのチェック（既存同名）
         if ((row.getCompanyId() == null || row.getCompanyId().isEmpty())
                 && name != null && !name.isEmpty()) {
@@ -289,7 +291,7 @@ public class ExcelImportService {
                 warnings.add("警告：既存企業と住所が一致しています。登録済みデータの可能性があります。");
             }
         }
-    
+
         // 5) 登録日が未来日か（文字列もしくは既に ISO 日付文字列）
         if (!isBlank(row.getRegistrationDate())) {
             LocalDate d = parseFlexibleDate(row.getRegistrationDate());
@@ -297,7 +299,7 @@ public class ExcelImportService {
                 warnings.add("警告：登録日が未来の日付になっています。");
             }
         }
-        
+
         // 6) 住所が極端に短い
         if (!isBlank(row.getAddress()) && row.getAddress().length() <= 5) {
             warnings.add("警告：住所が極端に短いため、番地などの入力漏れの可能性があります。");
@@ -310,7 +312,8 @@ public class ExcelImportService {
     }
 
     private String normalizeString(String s) {
-        if (s == null) return null;
+        if (s == null)
+            return null;
         String t = s.trim();
         return t.isEmpty() ? null : t;
     }
@@ -320,57 +323,56 @@ public class ExcelImportService {
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
         return base + "（" + joined + "行目）";
-    }   
+    }
 
     // 住所チェックロジック
     private void checkAddressConsistency(ImportRowDto row, List<String> warnings) {
         String inputZip = row.getZipCode();
         String inputAddress = row.getAddress();
 
-        if (isBlank(inputZip) || isBlank(inputAddress)) return;
+        if (isBlank(inputZip) || isBlank(inputAddress))
+            return;
 
         // 1. 郵便番号の正規化（ハイフン除去）
         String cleanZip = inputZip.replace("-", "");
 
         // 2. マスタ検索
         ZipMaster master = zipMasterRepository.findByZipCode(cleanZip);
-        
+
         // マスタにない郵便番号の場合はスキップ（または「郵便番号が存在しません」と警告）
         if (master == null) {
             warnings.add("警告：郵便番号が存在しません ");
-            return; 
+            return;
         }
 
         // --- ① 市区町村まで ---
         String expectedBase = master.getPrefecture() + master.getCity();
         if (!inputAddress.startsWith(expectedBase)) {
             warnings.add(String.format(
-                "警告：住所と郵便番号が一致しない可能性があります（郵便番号 %s は %s です）。",
-                inputZip, expectedBase
-            ));
+                    "警告：住所と郵便番号が一致しない可能性があります（郵便番号 %s は %s です）。",
+                    inputZip, expectedBase));
             return; // 市区町村ズレは強めなのでここで止める
         }
 
         // 4. 町名チェック（町名が書かれている場合のみ）
-    String masterTown = master.getTown();
-    if (!isBlank(masterTown)) {
+        String masterTown = master.getTown();
+        if (!isBlank(masterTown)) {
 
-        // 入力住所に「町名っぽい情報」が含まれているか
-        boolean townWritten =
-                inputAddress.contains("町")
-             || inputAddress.contains("丁目")
-             || inputAddress.contains(masterTown);
+            // 入力住所に「町名っぽい情報」が含まれているか
+            boolean townWritten = inputAddress.contains("町")
+                    || inputAddress.contains("丁目")
+                    || inputAddress.contains(masterTown);
 
-        // 町名が書かれているのに、マスタ町名と一致しない場合だけ警告
-        if (townWritten && !inputAddress.contains(masterTown)) {
-            warnings.add("警告：町名が郵便番号の情報と一致していません。");
+            // 町名が書かれているのに、マスタ町名と一致しない場合だけ警告
+            if (townWritten && !inputAddress.contains(masterTown)) {
+                warnings.add("警告：町名が郵便番号の情報と一致していません。");
+            }
         }
+
+        // 丁目と番地チェックを余裕があれば追加
     }
 
-        //丁目と番地チェックを余裕があれば追加
-    }
-    
-     /**
+    /**
      * ★追加: 確定登録処理
      * 有効なデータだけをDBに保存する
      */
@@ -387,7 +389,8 @@ public class ExcelImportService {
             if (row.getCompanyId() != null && !row.getCompanyId().isBlank()) {
                 Integer id = Integer.parseInt(row.getCompanyId());
                 company = companyRepository.findById(id).orElse(null);
-                if (company == null) continue;
+                if (company == null)
+                    continue;
             } else {
                 company = new Company();
                 company.setIsDeleted(false);
@@ -414,9 +417,13 @@ public class ExcelImportService {
                     company.setRegistrationDate(LocalDate.now());
                 }
             }
-            
+
             companyRepository.save(company);
         }
+    }
+
+    public ByteArrayInputStream downloadTemplate() {
+        return ExcelHelper.createTemplate();
     }
 
 }

@@ -152,7 +152,7 @@
                                         aria-label="インポートデータ検証結果">
                                         <thead class="bg-white/5 text-xs uppercase text-slate-400">
                                             <tr>
-                                                <th class="px-6 py-3" scope="col">行番号</th>
+                                                <th class="px-6 py-3" scope="col">No.</th>
                                                 <th class="px-6 py-3" scope="col">企業ID</th>
                                                 <th class="px-6 py-3" scope="col">企業名</th>
                                                 <th class="px-6 py-3" scope="col">住所</th>
@@ -168,7 +168,7 @@
                                                 th:attr="data-status=${row.isValid} ? (${row.hasWarning} ? 'warning' : 'success') : 'error'"
                                                 th:classappend="${row.isValid} ? (${row.hasWarning} ? 'bg-yellow-400/10' : '') : 'bg-red-500/10'"
                                                 th:each="row : ${importResult.totalList}">
-                                                <th class="whitespace-nowrap px-6 py-4 font-medium text-white"
+                                                <th class="whitespace-nowrap px-6 py-4 font-medium text-white text-center"
                                                     th:text="${row.rowNum == null} ? '-' : ${row.rowNum}"></th>
                                                 <td class="px-6 py-4"
                                                     th:text="${#strings.isEmpty(row.companyId)} ? '-' : ${row.companyId}">

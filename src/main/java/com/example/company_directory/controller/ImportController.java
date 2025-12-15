@@ -37,10 +37,10 @@ public class ImportController {
 
     private final ExcelImportService excelImportService;
 
-    public ImportController(ExcelImportService excelImportService){
-        this.excelImportService=excelImportService;
+    public ImportController(ExcelImportService excelImportService) {
+        this.excelImportService = excelImportService;
     }
-    
+
     @GetMapping("/import")
     public String upload(@RequestParam(name = "error", required = false) String error, Model model) {
         if ("session".equals(error)) {
@@ -52,12 +52,12 @@ public class ImportController {
     @PostMapping("/import")
     public String importExcel(@RequestParam("file") MultipartFile file, Model model) {
         try {
-            //ファイルが空の場合
+            // ファイルが空の場合
             if (file == null || file.isEmpty()) {
                 model.addAttribute("errorMessage", "ファイルが選択されていません。");
                 return "companies/import";
             }
-            //ファイル名、拡張子が正しくない場合
+            // ファイル名、拡張子が正しくない場合
             String fileName = file.getOriginalFilename();
             if (fileName == null || !fileName.endsWith(".xlsx")) {
                 model.addAttribute("errorMessage", "Excelファイル(.xlsx)のみアップロード可能です。");
@@ -69,7 +69,7 @@ public class ImportController {
             String tempFileName = UUID.randomUUID().toString() + ".xlsx";
             Path tempDir = Paths.get(System.getProperty("java.io.tmpdir")); // OSの一時フォルダ
             Path tempFilePath = tempDir.resolve(tempFileName);
-            
+
             // ファイルをコピー配置
             Files.copy(file.getInputStream(), tempFilePath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -96,7 +96,9 @@ public class ImportController {
 
     // ★追加: 確定登録実行
     @PostMapping("/import/execute")
-    public String executeImport(@RequestParam("tempFileName") String tempFileName, @RequestParam(name = "mode", defaultValue = "all") String mode, Model model, RedirectAttributes redirectAttributes) {
+    public String executeImport(@RequestParam("tempFileName") String tempFileName,
+            @RequestParam(name = "mode", defaultValue = "all") String mode, Model model,
+            RedirectAttributes redirectAttributes) {
         ImportResultDto result = null;
         try {
             // 1. 一時ファイルのパスを取得
@@ -113,7 +115,6 @@ public class ImportController {
             try (InputStream is = Files.newInputStream(tempFilePath)) {
                 result = excelImportService.importExcel(is);
             }
-            
 
             // 2. 登録対象の選定
             List<ImportRowDto> targetList;
@@ -123,11 +124,10 @@ public class ImportController {
                 targetList = result.getSuccessList();
             } else {
                 // 正常 + 警告
-                targetList =result.getTotalList().stream()
-                            .filter(row -> !row.isHasError()) // エラー除外
-                            .toList();
+                targetList = result.getTotalList().stream()
+                        .filter(row -> !row.isHasError()) // エラー除外
+                        .toList();
             }
-
 
             // 3. DB保存
             if (targetList.isEmpty()) {
@@ -136,35 +136,33 @@ public class ImportController {
                 model.addAttribute("tempFileName", tempFileName);
                 return "companies/import"; // 画面に戻る
             }
-            
+
             excelImportService.saveValidData(targetList);
 
             // 4. 後始末（一時ファイルを削除）
             Files.deleteIfExists(tempFilePath);
 
-            //ここはモーダルウィンドウで結果表示をする
+            // ここはモーダルウィンドウで結果表示をする
             // 5. 完了画面（または一覧）へリダイレクト
             redirectAttributes.addFlashAttribute("message", targetList.size() + "件のデータを登録しました。");
             return "redirect:/companies";
 
-            //後でエラー処理を追加
+            // 後でエラー処理を追加
         } catch (IOException e) {
             model.addAttribute("errorMessage", "ファイルの読み込みに失敗しました。");
-        
+
         } catch (DataIntegrityViolationException e) {
             model.addAttribute("errorMessage",
-                "データの重複が検出されました。既に登録されているデータがあります。"
-            );
-        
+                    "データの重複が検出されました。既に登録されているデータがあります。");
+
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage",
-                e.getMessage() != null ? e.getMessage() : "データの解析に失敗しました。"
-            );
-        
+                    e.getMessage() != null ? e.getMessage() : "データの解析に失敗しました。");
+
         } catch (Exception e) {
             model.addAttribute("errorMessage", "予期しないエラーが発生しました。");
         }
-        
+
         // 共通の再表示処理
         if (result != null) {
             model.addAttribute("importResult", result);
@@ -192,7 +190,7 @@ public class ImportController {
                     .filter(row -> row.getErrorMessages() != null && !row.getErrorMessages().isEmpty())
                     .toList());
         }
-        
+
         if ("warning".equals(target) || "both".equals(target)) {
             // 警告分を追加
             exportList.addAll(result.getTotalList().stream()
@@ -205,6 +203,17 @@ public class ImportController {
 
         // 4. ファイル名決定
         String filename = "import_" + target + "_" + LocalDate.now() + ".xlsx";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new InputStreamResource(stream));
+    }
+
+    @GetMapping("/template")
+    public ResponseEntity<InputStreamResource> downloadTemplate() {
+        String filename = "import_template_company.xlsx";
+        ByteArrayInputStream stream = excelImportService.downloadTemplate();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)

@@ -1,5 +1,7 @@
 package com.example.company_directory.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,4 +16,12 @@ public class User {
 
     @Column(nullable = false, length = 255)
     private String passwordHash;
+
+    @Column(nullable = false)
+    private int failedLoginCount = 0;
+
+    private LocalDateTime lockedUntil;
+
+    @Column(nullable = false)
+    private boolean enabled = true;
 }

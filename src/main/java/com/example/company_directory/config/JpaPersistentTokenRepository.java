@@ -1,0 +1,72 @@
+package com.example.company_directory.config;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.company_directory.entity.RememberMeToken;
+import com.example.company_directory.repository.RememberMeTokenRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+public class JpaPersistentTokenRepository implements PersistentTokenRepository {
+
+    private final RememberMeTokenRepository tokenRepository;
+
+    @Override
+    @Transactional
+    public void createNewToken(PersistentRememberMeToken token) {
+        RememberMeToken entity = new RememberMeToken(
+                token.getSeries(),
+                token.getUsername(),
+                token.getTokenValue(),
+                toLocalDateTime(token.getDate()));
+        tokenRepository.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public void updateToken(String series, String tokenValue, Date lastUsed) {
+        tokenRepository.findById(series).ifPresent(token -> {
+            token.setTokenValue(tokenValue);
+            token.setLastUsed(toLocalDateTime(lastUsed));
+            tokenRepository.save(token);
+        });
+    }
+
+    @Override
+    public PersistentRememberMeToken getTokenForSeries(String series) {
+        return tokenRepository.findById(series)
+                .map(token -> new PersistentRememberMeToken(
+                        token.getUsername(),
+                        token.getSeries(),
+                        token.getTokenValue(),
+                        toDate(token.getLastUsed())))
+                .orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void removeUserTokens(String username) {
+        tokenRepository.deleteByUsername(username);
+    }
+
+    private LocalDateTime toLocalDateTime(Date date) {
+        if (date == null)
+            return LocalDateTime.now();
+        return new Timestamp(date.getTime()).toLocalDateTime();
+    }
+
+    private Date toDate(LocalDateTime localDateTime) {
+        if (localDateTime == null)
+            return new Date();
+        return Timestamp.valueOf(localDateTime);
+    }
+}

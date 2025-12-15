@@ -1,241 +1,367 @@
 <!DOCTYPE html>
 <html class="dark" lang="ja">
-    <head>
-        <meta charset="utf-8"/>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-        <title>廃棄データ・アーカイブ</title>
-        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-        <script>
-                tailwind.config = {
-                    darkMode: "class",
-                    theme: {
-                        extend: {
-                            colors: {
-                                "primary": "#137fec",
-                                "background-light": "#f6f7f8",
-                                "archive-dark": "#1a1816",
-                                "archive-dark-panel": "#2d2a27",
-                                "archive-dark-border": "#44403c",
-                                "archive-text": "#d6d3d1",
-                                "archive-text-dim": "#a8a29e",
-                            },
-                            fontFamily: {
-                                "display": ["Inter", "Noto Sans JP", "sans-serif"]
-                            },
-                            borderRadius: {
-                                "DEFAULT": "0.25rem",
-                                "lg": "0.5rem",
-                                "xl": "0.75rem",
-                                "full": "9999px"
-                            },
-                        },
-                    },
-                }
-        </script>
-        <style>
-                body {
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                }
-                .group:focus-within .group-focus-within\:block {
-                    display: block;
-                }
-                .group:focus-within .group-focus-within\:opacity-100 {
-                    opacity: 1;
-                }
-                .group:focus-within .group-focus-within\:pointer-events-auto {
-                    pointer-events: auto;
-                }
-        </style>
-    </head>
-    <body class="font-display bg-background-light dark:bg-archive-dark">
-        <!-- 成功メッセージ -->
-        <div th:if="${successMessage}" class="p-4 mb-4 text-green-800 rounded-lg bg-green-100">
-            <span th:text="${successMessage}"></span>
-        </div>
 
-        <!-- エラーメッセージ -->
-        <div th:if="${errorMessage}" class="p-4 mb-4 text-red-800 rounded-lg bg-red-100">
-            <span th:text="${errorMessage}"></span>
-        </div>
-        <div class="relative flex h-screen w-full flex-col bg-background-light dark:bg-archive-dark group/design-root overflow-hidden">
-            <div class="flex h-full grow flex-col">
-                <div class="px-4 sm:px-6 md:px-8 lg:px-10 flex flex-col h-full">
-                    <div class="layout-content-container flex flex-col w-full mx-auto max-w-[1400px] flex-1 h-full py-4">
-                        <div class="flex flex-col flex-1 h-full">
-                            <div class="flex flex-wrap justify-between items-center gap-4 pb-3">
-                                <h1 class="text-gray-800 dark:text-archive-text text-2xl font-bold leading-tight tracking-[-0.033em]">廃棄データ・アーカイブ</h1>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <form th:action="@{/companies}" method="get">
-                                        <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md h-9 px-3 bg-gray-200 dark:bg-archive-dark-panel text-gray-800 dark:text-archive-text text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-archive-dark-border transition-colors">
-                                            <span class="material-symbols-outlined text-base">arrow_back</span>
-                                            <span class="truncate">一覧へ戻る</span>
-                                        </button>
-                                    </form>
-                                </div>
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>廃棄データ・アーカイブ</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "archive-dark": "#1a1816",
+                        "archive-dark-panel": "#2d2a27",
+                        "archive-dark-border": "#44403c",
+                        "archive-text": "#d6d3d1",
+                        "archive-text-dim": "#a8a29e",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans JP", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .group:focus-within .group-focus-within\:block {
+            display: block;
+        }
+
+        .group:focus-within .group-focus-within\:opacity-100 {
+            opacity: 1;
+        }
+
+        .group:focus-within .group-focus-within\:pointer-events-auto {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body class="font-display bg-background-light dark:bg-archive-dark">
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="p-4 mb-4 text-green-800 rounded-lg bg-green-100">
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="p-4 mb-4 text-red-800 rounded-lg bg-red-100">
+        <span th:text="${errorMessage}"></span>
+    </div>
+    <div
+        class="relative flex h-screen w-full flex-col bg-background-light dark:bg-archive-dark group/design-root overflow-hidden">
+        <div class="flex h-full grow flex-col">
+            <div class="px-4 sm:px-6 md:px-8 lg:px-10 flex flex-col h-full">
+                <div class="layout-content-container flex flex-col w-full mx-auto max-w-[1400px] flex-1 h-full py-4">
+                    <div class="flex flex-col flex-1 h-full">
+                        <div class="flex flex-wrap justify-between items-center gap-4 pb-3">
+                            <h1
+                                class="text-gray-800 dark:text-archive-text text-2xl font-bold leading-tight tracking-[-0.033em]">
+                                廃棄データ・アーカイブ</h1>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <form th:action="@{/companies}" method="get">
+                                    <button
+                                        class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md h-9 px-3 bg-gray-200 dark:bg-archive-dark-panel text-gray-800 dark:text-archive-text text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-archive-dark-border transition-colors">
+                                        <span class="material-symbols-outlined text-base">arrow_back</span>
+                                        <span class="truncate">一覧へ戻る</span>
+                                    </button>
+                                </form>
                             </div>
+                        </div>
+                        <form th:action="@{/companies/trash}" method="get" th:object="${searchForm}">
+                            <input type="hidden" name="size" th:value="${page?.size} ?: 5" />
                             <div class="flex flex-col gap-3 pb-3">
                                 <div class="flex items-start gap-3">
                                     <div class="flex-1">
                                         <label class="flex flex-col min-w-40 h-10">
                                             <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
-                                                <div class="text-[#9dabb9] flex bg-white dark:bg-[#283039] items-center justify-center pl-4 rounded-l-lg border border-gray-300 dark:border-[#3b4754] border-r-0">
+                                                <div
+                                                    class="text-[#9dabb9] flex bg-white dark:bg-[#283039] items-center justify-center pl-4 rounded-l-lg border border-gray-300 dark:border-[#3b4754] border-r-0">
                                                     <span class="material-symbols-outlined">search</span>
                                                 </div>
-                                                <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border-gray-300 dark:border-[#3b4754] bg-white dark:bg-[#283039] focus:border-primary/50 h-full placeholder:text-gray-400 dark:placeholder:text-[#9dabb9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="キーワード検索..." value=""/>
+                                                <input name="keyword" th:value="${searchForm?.keyword}"
+                                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border-gray-300 dark:border-[#3b4754] bg-white dark:bg-[#283039] focus:border-primary/50 h-full placeholder:text-gray-400 dark:placeholder:text-[#9dabb9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                                                    placeholder="キーワード検索..." />
                                             </div>
                                         </label>
                                     </div>
                                     <div class="flex-1 relative">
-                                        <details class="w-full rounded-lg border border-gray-300 dark:border-[#3b4754] bg-white dark:bg-[#1c2127] group">
+                                        <details
+                                            class="w-full rounded-lg border border-gray-300 dark:border-[#3b4754] bg-white dark:bg-[#1c2127] group">
                                             <summary class="flex cursor-pointer items-center gap-2 px-3 h-10 list-none">
-                                                <p class="text-gray-800 dark:text-white text-sm font-medium leading-normal">詳細検索</p>
-                                                <div class="ml-auto text-gray-600 dark:text-white group-open:rotate-180 transition-transform">
+                                                <p
+                                                    class="text-gray-800 dark:text-white text-sm font-medium leading-normal">
+                                                    詳細検索</p>
+                                                <div
+                                                    class="ml-auto text-gray-600 dark:text-white group-open:rotate-180 transition-transform">
                                                     <span class="material-symbols-outlined">expand_more</span>
                                                 </div>
                                             </summary>
                                             <div class="absolute top-full left-0 w-full mt-2 z-20">
-                                                <div class="border border-gray-300 dark:border-[#3b4754] p-4 bg-white dark:bg-[#1c2127] rounded-lg shadow-lg">
+                                                <div
+                                                    class="border border-gray-300 dark:border-[#3b4754] p-4 bg-white dark:bg-[#1c2127] rounded-lg shadow-lg">
                                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                         <div>
-                                                            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">企業ID</label>
-                                                            <input class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm" placeholder="例: 0001" type="text"/>
+                                                            <label
+                                                                class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">企業ID</label>
+                                                            <input name="companyId" th:value="${searchForm?.companyId}"
+                                                                class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm"
+                                                                placeholder="例: 0001" type="text" />
                                                         </div>
                                                         <div>
-                                                            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">企業名</label>
-                                                            <input class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm" placeholder="例: 株式会社未来テクノロジー" type="text"/>
+                                                            <label
+                                                                class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">企業名</label>
+                                                            <input name="companyName"
+                                                                th:value="${searchForm?.companyName}"
+                                                                class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm"
+                                                                placeholder="例: 株式会社未来テクノロジー" type="text" />
+                                                        </div>
+                                                        <!-- Trashでは住所・郵便番号列はないが検索機能としては残す -->
+                                                        <div>
+                                                            <label
+                                                                class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">住所</label>
+                                                            <input name="address" th:value="${searchForm?.address}"
+                                                                class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm"
+                                                                placeholder="例: 東京都千代田区" type="text" />
                                                         </div>
                                                         <div>
-                                                            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">住所</label>
-                                                            <input class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm" placeholder="例: 東京都千代田区" type="text"/>
-                                                        </div>
-                                                        <div>
-                                                            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">郵便番号</label>
-                                                            <input class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm" placeholder="例: 100-0005" type="text"/>
+                                                            <label
+                                                                class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">郵便番号</label>
+                                                            <input name="zipCode" th:value="${searchForm?.zipCode}"
+                                                                class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-primary focus:border-primary h-9 text-sm"
+                                                                placeholder="例: 100-0005" type="text" />
                                                         </div>
                                                         <div class="md:col-span-2">
-                                                            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">登録日</label>
+                                                            <label
+                                                                class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">登録日</label>
                                                             <div class="flex items-center gap-2">
-                                                                <input class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white focus:ring-primary focus:border-primary h-9 text-sm" type="date"/>
+                                                                <input name="dateFrom"
+                                                                    th:value="${searchForm?.dateFrom}"
+                                                                    class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white focus:ring-primary focus:border-primary h-9 text-sm"
+                                                                    type="date" />
                                                                 <span class="text-gray-500 dark:text-gray-400">〜</span>
-                                                                <input class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white focus:ring-primary focus:border-primary h-9 text-sm" type="date"/>
+                                                                <input name="dateTo" th:value="${searchForm?.dateTo}"
+                                                                    class="form-input block w-full rounded-md bg-white dark:bg-[#283039] border-gray-300 dark:border-[#3b4754] text-gray-800 dark:text-white focus:ring-primary focus:border-primary h-9 text-sm"
+                                                                    type="date" />
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="flex justify-end gap-2 mt-4">
-                                                        <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-gray-200 dark:bg-[#283039] text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-[#3b4754] transition-colors">クリア</button>
-                                                        <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">検索</button>
+                                                        <a th:href="@{/companies/trash}"
+                                                            class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-gray-200 dark:bg-[#283039] text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-[#3b4754] transition-colors">クリア</a>
+                                                        <button type="submit"
+                                                            class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">検索</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </details>
                                     </div>
-                                    <div class="group relative">
-                                        <button class="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-[#283039] text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-[#3b4754] transition-colors">
+                                    <div class="relative">
+                                        <button type="button" id="settingsButton"
+                                            class="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-[#283039] text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-[#3b4754] transition-colors">
                                             <span class="material-symbols-outlined text-xl">settings</span>
                                         </button>
-                                        <div class="hidden group-focus-within:block absolute top-full right-0 mt-2 w-64 bg-white dark:bg-[#283039] border border-gray-300 dark:border-[#3b4754] rounded-lg shadow-xl z-20">
+                                        <div id="settingsDropdown"
+                                            class="hidden absolute top-full right-0 mt-2 w-64 bg-white dark:bg-[#283039] border border-gray-300 dark:border-[#3b4754] rounded-lg shadow-xl z-20">
                                             <div class="p-4 border-b border-gray-200 dark:border-[#3b4754]">
-                                                <h3 class="text-sm font-bold text-gray-800 dark:text-white text-left">列の表示設定</h3>
+                                                <h3 class="text-sm font-bold text-gray-800 dark:text-white text-left">
+                                                    列の表示設定</h3>
                                             </div>
-                                            <div class="p-4 space-y-3 text-sm text-left">
-                                                <label class="flex items-center gap-2 cursor-pointer text-gray-500 dark:text-gray-400">
-                                                    <input checked="" class="form-checkbox rounded text-primary focus:ring-primary/50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed" disabled="" type="checkbox"/>
+                                            <div class="p-4 space-y-3 text-sm text-left" id="columnSettings">
+                                                <label
+                                                    class="flex items-center gap-2 cursor-pointer text-gray-500 dark:text-gray-400">
+                                                    <input type="checkbox" data-col="companyName" checked disabled
+                                                        class="form-checkbox rounded text-primary focus:ring-primary/50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed" />
                                                     <span class="opacity-75">企業名</span>
                                                 </label>
-                                                <label class="flex items-center gap-2 cursor-pointer text-gray-500 dark:text-gray-400">
-                                                    <input checked="" class="form-checkbox rounded text-primary focus:ring-primary/50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed" disabled="" type="checkbox"/>
-                                                    <span class="opacity-75">住所</span>
-                                                </label>
-                                                <label class="flex items-center gap-2 cursor-pointer text-gray-500 dark:text-gray-400">
-                                                    <input checked="" class="form-checkbox rounded text-primary focus:ring-primary/50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed" disabled="" type="checkbox"/>
-                                                    <span class="opacity-75">郵便番号</span>
-                                                </label>
-                                                <label class="flex items-center gap-2 cursor-pointer text-gray-800 dark:text-white">
-                                                    <input checked="" class="form-checkbox rounded text-primary focus:ring-primary/50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600" type="checkbox"/>
+                                                <label
+                                                    class="flex items-center gap-2 cursor-pointer text-gray-800 dark:text-white">
+                                                    <input type="checkbox" data-col="companyId" checked
+                                                        class="form-checkbox rounded text-primary focus:ring-primary/50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600" />
                                                     <span>企業ID</span>
                                                 </label>
-                                                <label class="flex items-center gap-2 cursor-pointer text-gray-800 dark:text-white">
-                                                    <input checked="" class="form-checkbox rounded text-primary focus:ring-primary/50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600" type="checkbox"/>
-                                                    <span>登録日</span>
+                                                <label
+                                                    class="flex items-center gap-2 cursor-pointer text-gray-800 dark:text-white">
+                                                    <input type="checkbox" data-col="deletedAt" checked
+                                                        class="form-checkbox rounded text-primary focus:ring-primary/50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600" />
+                                                    <span>削除日時</span>
                                                 </label>
-                                                <label class="flex items-center gap-2 cursor-pointer text-gray-800 dark:text-white">
-                                                    <input checked="" class="form-checkbox rounded text-primary focus:ring-primary/50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600" type="checkbox"/>
-                                                    <span>備考</span>
+                                                <label
+                                                    class="flex items-center gap-2 cursor-pointer text-gray-800 dark:text-white">
+                                                    <input type="checkbox" data-col="deletedBy" checked
+                                                        class="form-checkbox rounded text-primary focus:ring-primary/50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600" />
+                                                    <span>削除実行者</span>
                                                 </label>
-                                                <label class="flex items-center gap-2 cursor-pointer text-gray-800 dark:text-white">
-                                                    <input checked="" class="form-checkbox rounded text-primary focus:ring-primary/50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600" type="checkbox"/>
-                                                    <span>操作</span>
+                                                <label
+                                                    class="flex items-center gap-2 cursor-pointer text-gray-500 dark:text-gray-400">
+                                                    <input type="checkbox" data-col="actions" checked disabled
+                                                        class="form-checkbox rounded text-primary focus:ring-primary/50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed" />
+                                                    <span class="opacity-75">操作</span>
                                                 </label>
-                                            </div>
-                                            <div class="flex justify-end gap-2 p-3 bg-gray-50 dark:bg-[#1c2127] border-t border-gray-200 dark:border-[#3b4754]">
-                                                <button class="flex min-w-[70px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-8 px-3 bg-gray-200 dark:bg-[#3b4754] text-gray-800 dark:text-white text-xs font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-[#4a5867] transition-colors">キャンセル</button>
-                                                <button class="flex min-w-[70px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-8 px-3 bg-primary text-white text-xs font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">適用</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex overflow-hidden rounded-lg border border-archive-dark-border bg-archive-dark flex-col flex-1">
-                                <div class="overflow-y-auto flex-1">
-                                    <table class="w-full min-w-[1000px] text-sm">
-                                        <thead class="sticky top-0 z-10">
-                                            <tr class="bg-archive-dark-panel">
-                                                <th class="px-4 py-2.5 text-left text-archive-text w-[120px] font-medium leading-normal group cursor-pointer">
-                                                    <div class="flex items-center gap-1">企業ID <span class="material-symbols-outlined text-base opacity-50 group-hover:opacity-100">swap_vert</span></div>
-                                                </th>
-                                                <th class="px-4 py-2.5 text-left text-archive-text min-w-[200px] font-medium leading-normal group cursor-pointer">
-                                                    <div class="flex items-center gap-1">企業名 <span class="material-symbols-outlined text-base opacity-50 group-hover:opacity-100">swap_vert</span></div>
-                                                </th>
-                                                <th class="px-4 py-2.5 text-left text-archive-text w-[200px] font-bold leading-normal group cursor-pointer text-amber-300">
-                                                    <div class="flex items-center gap-1">削除日時 <span class="material-symbols-outlined text-base text-amber-300">south</span></div>
-                                                </th>
-                                                <th class="px-4 py-2.5 text-left text-archive-text w-[180px] font-bold leading-normal group cursor-pointer text-amber-300">
-                                                    <div class="flex items-center gap-1">削除実行者 <span class="material-symbols-outlined text-base opacity-50 group-hover:opacity-100">swap_vert</span></div>
-                                                </th>
-                                                <th class="px-4 py-2.5 text-center text-archive-text w-[120px] font-medium leading-normal">操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="company : ${trashCompanies}" class="border-t border-t-archive-dark-border hover:bg-archive-dark-panel/50">
-                                                <td class="px-4 py-2 text-archive-text-dim font-normal leading-normal">[[${company.companyId}]]</td>
-                                                <td class="px-4 py-2 text-archive-text font-normal leading-normal">[[${company.companyName}]]</td>
-                                                <td class="px-4 py-2 text-amber-400 font-medium leading-normal" th:text="${#temporals.format(company.deletedAt, 'yyyy/MM/dd HH:mm')}"></td>
-                                                <td class="px-4 py-2 text-amber-400 font-medium leading-normal">[[${company.deletedBy}]]</td>
-                                                <td class="px-4 py-2">
-                                                    <div class="flex justify-center items-center h-full">
-                                                        <form th:action="@{/companies/trash/restore/{id}(id=${company.companyId})}" method="post">
-                                                            <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md h-8 px-3 bg-teal-600 text-white text-xs font-bold leading-normal tracking-[0.015em] hover:bg-teal-500 transition-colors">
-                                                                <span class="material-symbols-outlined text-base">restore_from_trash</span>
-                                                                <span class="truncate">復元</span>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="flex flex-wrap items-center justify-between gap-4 p-3 border-t border-archive-dark-border">
-                                    <div class="flex items-center gap-2 text-sm text-archive-text-dim">
-                                        <span>表示件数:</span>
-                                        <select class="form-select rounded-md bg-archive-dark-panel border-archive-dark-border focus:ring-primary focus:border-primary h-8 py-0 pl-2 pr-7 text-sm text-archive-text">
-                                            <option>10</option>
-                                            <option>20</option>
-                                            <option>50</option>
-                                            <option>100</option>
+                        </form>
+
+                        <div
+                            class="flex overflow-hidden rounded-lg border border-archive-dark-border bg-archive-dark flex-col flex-1">
+                            <div class="overflow-y-auto flex-1">
+                                <table class="w-full min-w-[1000px] text-sm">
+                                    <thead class="sticky top-0 z-10">
+                                        <tr class="bg-archive-dark-panel">
+                                            <th
+                                                class="px-4 py-2.5 text-center text-archive-text w-[60px] font-medium leading-normal">
+                                                No.</th>
+                                            <th data-col="companyId"
+                                                class="px-4 py-2.5 text-left text-archive-text w-[120px] font-medium leading-normal group cursor-pointer">
+                                                <div class="flex items-center gap-1">企業ID <span
+                                                        class="material-symbols-outlined text-base opacity-50 group-hover:opacity-100">swap_vert</span>
+                                                </div>
+                                            </th>
+                                            <th data-col="companyName"
+                                                class="px-4 py-2.5 text-left text-archive-text min-w-[200px] font-medium leading-normal group cursor-pointer">
+                                                <div class="flex items-center gap-1">企業名 <span
+                                                        class="material-symbols-outlined text-base opacity-50 group-hover:opacity-100">swap_vert</span>
+                                                </div>
+                                            </th>
+                                            <th data-col="deletedAt"
+                                                class="px-4 py-2.5 text-left text-archive-text w-[200px] font-bold leading-normal group cursor-pointer text-amber-300">
+                                                <div class="flex items-center gap-1">削除日時 <span
+                                                        class="material-symbols-outlined text-base text-amber-300">south</span>
+                                                </div>
+                                            </th>
+                                            <th data-col="deletedBy"
+                                                class="px-4 py-2.5 text-left text-archive-text w-[180px] font-bold leading-normal group cursor-pointer text-amber-300">
+                                                <div class="flex items-center gap-1">削除実行者 <span
+                                                        class="material-symbols-outlined text-base opacity-50 group-hover:opacity-100">swap_vert</span>
+                                                </div>
+                                            </th>
+                                            <th data-col="actions"
+                                                class="px-4 py-2.5 text-center text-archive-text w-[120px] font-medium leading-normal">
+                                                操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="company, iterStat : ${trashCompanies}"
+                                            class="border-t border-t-archive-dark-border hover:bg-archive-dark-panel/50">
+                                            <td
+                                                class="px-4 py-2 text-center text-archive-text-dim font-normal leading-normal">
+                                                [[${(page.number * page.size) + iterStat.count}]]</td>
+                                            <td data-col="companyId"
+                                                class="px-4 py-2 text-archive-text-dim font-normal leading-normal">
+                                                [[${company.companyId}]]</td>
+                                            <td data-col="companyName"
+                                                class="px-4 py-2 text-archive-text font-normal leading-normal">
+                                                [[${company.companyName}]]</td>
+                                            <td data-col="deletedAt"
+                                                class="px-4 py-2 text-amber-400 font-medium leading-normal"
+                                                th:text="${#temporals.format(company.deletedAt, 'yyyy/MM/dd HH:mm')}">
+                                            </td>
+                                            <td data-col="deletedBy"
+                                                class="px-4 py-2 text-amber-400 font-medium leading-normal">
+                                                [[${company.deletedBy}]]</td>
+                                            <td data-col="actions" class="px-4 py-2">
+                                                <div class="flex justify-center items-center h-full">
+                                                    <form
+                                                        th:action="@{/companies/trash/restore/{id}(id=${company.companyId})}"
+                                                        method="post">
+                                                        <button
+                                                            class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md h-8 px-3 bg-teal-600 text-white text-xs font-bold leading-normal tracking-[0.015em] hover:bg-teal-500 transition-colors">
+                                                            <span
+                                                                class="material-symbols-outlined text-base">restore_from_trash</span>
+                                                            <span class="truncate">復元</span>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div
+                                class="flex flex-wrap items-center justify-between gap-4 p-3 border-t border-archive-dark-border">
+                                <div class="flex items-center gap-2 text-sm text-archive-text-dim">
+                                    <span>表示件数:</span>
+                                    <form id="pageSizeForm" th:action="@{/companies/trash}" method="get">
+                                        <!-- 検索条件を維持するための隠しフィールド -->
+                                        <input type="hidden" name="keyword" th:value="${searchForm?.keyword}" />
+                                        <input type="hidden" name="companyId" th:value="${searchForm?.companyId}" />
+                                        <input type="hidden" name="companyName" th:value="${searchForm?.companyName}" />
+                                        <input type="hidden" name="address" th:value="${searchForm?.address}" />
+                                        <input type="hidden" name="zipCode" th:value="${searchForm?.zipCode}" />
+                                        <input type="hidden" name="dateFrom" th:value="${searchForm?.dateFrom}" />
+                                        <input type="hidden" name="dateTo" th:value="${searchForm?.dateTo}" />
+                                        <select name="size" onchange="document.getElementById('pageSizeForm').submit()"
+                                            class="form-select rounded-md bg-archive-dark-panel border-archive-dark-border focus:ring-primary focus:border-primary h-8 py-0 pl-2 pr-7 text-sm text-archive-text">
+                                            <option value="5" th:selected="${page.size == 5}">5</option>
+                                            <option value="10" th:selected="${page.size == 10}">10</option>
+                                            <option value="20" th:selected="${page.size == 20}">20</option>
+                                            <option value="50" th:selected="${page.size == 50}">50</option>
+                                            <option value="100" th:selected="${page.size == 100}">100</option>
                                         </select>
-                                    </div>
-                                    <div class="flex items-center gap-2 text-sm text-archive-text-dim">
-                                        <span>1-10 of 123件</span>
-                                        <div class="flex gap-1 text-archive-text">
-                                            <button class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel disabled:opacity-50 disabled:pointer-events-none" disabled=""><span class="material-symbols-outlined text-xl">first_page</span></button>
-                                            <button class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel disabled:opacity-50 disabled:pointer-events-none" disabled=""><span class="material-symbols-outlined text-xl">chevron_left</span></button>
-                                            <button class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel"><span class="material-symbols-outlined text-xl">chevron_right</span></button>
-                                            <button class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel"><span class="material-symbols-outlined text-xl">last_page</span></button>
-                                        </div>
+                                    </form>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-archive-text-dim">
+                                    <span
+                                        th:text="${(page.number * page.size + 1) + '-' + (page.number * page.size + page.numberOfElements) + ' of ' + page.totalElements + '件'}"></span>
+                                    <div class="flex gap-1 text-archive-text">
+                                        <!-- First Page -->
+                                        <a th:href="@{/companies/trash(page=0, size=${page.size}, keyword=${searchForm.keyword}, companyId=${searchForm.companyId}, companyName=${searchForm.companyName}, address=${searchForm.address}, zipCode=${searchForm.zipCode}, dateFrom=${searchForm.dateFrom}, dateTo=${searchForm.dateTo})}"
+                                            th:classappend="${page.first} ? 'pointer-events-none opacity-50' : ''">
+                                            <button th:disabled="${page.first}"
+                                                class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel disabled:opacity-50">
+                                                <span class="material-symbols-outlined text-xl">first_page</span>
+                                            </button>
+                                        </a>
+
+                                        <!-- Previous Page -->
+                                        <a th:href="@{/companies/trash(page=${page.number - 1}, size=${page.size}, keyword=${searchForm.keyword}, companyId=${searchForm.companyId}, companyName=${searchForm.companyName}, address=${searchForm.address}, zipCode=${searchForm.zipCode}, dateFrom=${searchForm.dateFrom}, dateTo=${searchForm.dateTo})}"
+                                            th:classappend="${page.first} ? 'pointer-events-none opacity-50' : ''">
+                                            <button th:disabled="${page.first}"
+                                                class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel disabled:opacity-50">
+                                                <span class="material-symbols-outlined text-xl">chevron_left</span>
+                                            </button>
+                                        </a>
+
+                                        <!-- Next Page -->
+                                        <a th:href="@{/companies/trash(page=${page.number + 1}, size=${page.size}, keyword=${searchForm.keyword}, companyId=${searchForm.companyId}, companyName=${searchForm.companyName}, address=${searchForm.address}, zipCode=${searchForm.zipCode}, dateFrom=${searchForm.dateFrom}, dateTo=${searchForm.dateTo})}"
+                                            th:classappend="${page.last} ? 'pointer-events-none opacity-50' : ''">
+                                            <button th:disabled="${page.last}"
+                                                class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel disabled:opacity-50">
+                                                <span class="material-symbols-outlined text-xl">chevron_right</span>
+                                            </button>
+                                        </a>
+
+                                        <!-- Last Page -->
+                                        <a th:href="@{/companies/trash(page=${page.totalPages - 1}, size=${page.size}, keyword=${searchForm.keyword}, companyId=${searchForm.companyId}, companyName=${searchForm.companyName}, address=${searchForm.address}, zipCode=${searchForm.zipCode}, dateFrom=${searchForm.dateFrom}, dateTo=${searchForm.dateTo})}"
+                                            th:classappend="${page.last} ? 'pointer-events-none opacity-50' : ''">
+                                            <button th:disabled="${page.last}"
+                                                class="h-8 w-8 rounded flex items-center justify-center hover:bg-archive-dark-panel disabled:opacity-50">
+                                                <span class="material-symbols-outlined text-xl">last_page</span>
+                                            </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -244,5 +370,106 @@
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+
+    <script>
+            (function () {
+                const STORAGE_KEY = 'trashListVisibleColumns';
+
+                // デフォルトの表示設定
+                const defaultSettings = {
+                    companyId: false,  // デフォルト非表示
+                    companyName: true,
+                    deletedAt: true,
+                    deletedBy: true,
+                    actions: true
+                };
+
+                // localStorageから設定を読み込む
+                function loadSettings() {
+                    try {
+                        const saved = localStorage.getItem(STORAGE_KEY);
+                        return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+                    } catch (e) {
+                        return defaultSettings;
+                    }
+                }
+
+                // localStorageに設定を保存
+                function saveSettings(settings) {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+                }
+
+                // 列の表示/非表示を適用（テーブル内のth, tdのみ対象）
+                function applyColumnVisibility(settings) {
+                    Object.keys(settings).forEach(col => {
+                        const cells = document.querySelectorAll(`table [data-col="${col}"]`);
+                        cells.forEach(cell => {
+                            cell.style.display = settings[col] ? '' : 'none';
+                        });
+                    });
+                }
+
+                // チェックボックスの状態を設定に反映
+                function syncCheckboxes(settings) {
+                    const checkboxes = document.querySelectorAll('#columnSettings input[type="checkbox"]');
+                    checkboxes.forEach(cb => {
+                        const col = cb.dataset.col;
+                        if (col && settings[col] !== undefined) {
+                            cb.checked = settings[col];
+                        }
+                    });
+                }
+
+                // 初期化
+                function init() {
+                    const settings = loadSettings();
+                    syncCheckboxes(settings);
+                    applyColumnVisibility(settings);
+
+                    // チェックボックスの変更イベント（リアルタイム反映）
+                    const checkboxes = document.querySelectorAll('#columnSettings input[type="checkbox"]:not(:disabled)');
+                    checkboxes.forEach(cb => {
+                        cb.addEventListener('change', function () {
+                            const col = this.dataset.col;
+                            settings[col] = this.checked;
+                            applyColumnVisibility(settings);
+                            saveSettings(settings);
+                        });
+                    });
+                }
+
+                // DOMContentLoaded後に実行
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', init);
+                } else {
+                    init();
+                }
+
+                // 設定メニューの表示切り替え
+                const settingsButton = document.getElementById('settingsButton');
+                const settingsDropdown = document.getElementById('settingsDropdown');
+
+                if (settingsButton && settingsDropdown) {
+                    settingsButton.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        settingsDropdown.classList.toggle('hidden');
+                    });
+
+                    // メニュー外クリックで閉じる
+                    document.addEventListener('click', function (e) {
+                        if (!settingsDropdown.contains(e.target) && !settingsButton.contains(e.target)) {
+                            settingsDropdown.classList.add('hidden');
+                        }
+                    });
+
+                    // メニュー内のクリックイベント伝播を止める（チェックボックス操作で閉じないようにするため）
+                    settingsDropdown.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                    });
+                }
+            })();
+    </script>
+</body>
+
 </html>

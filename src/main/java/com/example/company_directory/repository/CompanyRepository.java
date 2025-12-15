@@ -1,18 +1,21 @@
 package com.example.company_directory.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.example.company_directory.entity.Company;
 
-public interface CompanyRepository extends JpaRepository<Company, Integer>{
+public interface CompanyRepository extends JpaRepository<Company, Integer>, JpaSpecificationExecutor<Company> {
 
     List<Company> findAllByIsDeletedFalse();
 
-    
     List<Company> findAllByIsDeletedTrueOrderByDeletedAtDesc();
 
     @Query("SELECT c.companyId FROM Company c")
@@ -22,5 +25,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer>{
     boolean existsByCompanyName(String companyName);
 
     boolean existsByAddress(String address);
-    
+
+    @Modifying
+    @Query("DELETE FROM Company c WHERE c.isDeleted = true AND c.deletedAt < :threshold")
+    int deleteByIsDeletedTrueAndDeletedAtBefore(@Param("threshold") LocalDateTime threshold);
+
 }

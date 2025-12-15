@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,28 +30,74 @@ import com.example.company_directory.entity.Company;
 public class ExcelHelper {
 
     public static ByteArrayInputStream companiesToExcel(List<Company> companies) {
+        return companiesToExcel(companies, null);
+    }
+
+    public static ByteArrayInputStream companiesToExcel(List<Company> companies, List<String> columnKeys) {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Companies");
 
+        // Column Definitions (Order matters)
+        Map<String, String> headersMap = new LinkedHashMap<>();
+        headersMap.put("companyId", "企業ID");
+        headersMap.put("companyName", "企業名");
+        headersMap.put("address", "住所");
+        headersMap.put("zipCode", "郵便番号");
+        headersMap.put("registrationDate", "登録日");
+        headersMap.put("remarks", "備考");
+
+        // Determine active columns
+        List<String> activeKeys = new ArrayList<>();
+        if (columnKeys == null || columnKeys.isEmpty()) {
+            activeKeys.addAll(headersMap.keySet());
+        } else {
+            // Keep definition order but filter by selected
+            for (String key : headersMap.keySet()) {
+                if (columnKeys.contains(key)) {
+                    activeKeys.add(key);
+                }
+            }
+        }
+
         // ----- ヘッダー行 -----
         XSSFRow hRow = sheet.createRow(0);
-        hRow.createCell(0).setCellValue("企業ID");
-        hRow.createCell(1).setCellValue("企業名");
-        hRow.createCell(2).setCellValue("住所");
-        hRow.createCell(3).setCellValue("郵便番号");
-        hRow.createCell(4).setCellValue("登録日");
-        hRow.createCell(5).setCellValue("備考");
+        int colIdx = 0;
+        hRow.createCell(colIdx++).setCellValue("No.");
+        for (String key : activeKeys) {
+            hRow.createCell(colIdx++).setCellValue(headersMap.get(key));
+        }
 
         // ----- データ行 -----
         int rNum = 1;
         for (Company company : companies) {
-            XSSFRow row = sheet.createRow(rNum++);
-            row.createCell(0).setCellValue(company.getCompanyId());
-            row.createCell(1).setCellValue(company.getCompanyName());
-            row.createCell(2).setCellValue(company.getAddress());
-            row.createCell(3).setCellValue(company.getZipCode());
-            row.createCell(4).setCellValue(company.getRegistrationDate().toString());
-            row.createCell(5).setCellValue(company.getRemarks());
+            XSSFRow row = sheet.createRow(rNum);
+            colIdx = 0;
+            row.createCell(colIdx++).setCellValue(rNum); // No.列
+
+            for (String key : activeKeys) {
+                Cell cell = row.createCell(colIdx++);
+                switch (key) {
+                    case "companyId":
+                        cell.setCellValue(company.getCompanyId());
+                        break;
+                    case "companyName":
+                        cell.setCellValue(company.getCompanyName());
+                        break;
+                    case "address":
+                        cell.setCellValue(company.getAddress());
+                        break;
+                    case "zipCode":
+                        cell.setCellValue(company.getZipCode());
+                        break;
+                    case "registrationDate":
+                        cell.setCellValue(company.getRegistrationDate().toString());
+                        break;
+                    case "remarks":
+                        cell.setCellValue(company.getRemarks());
+                        break;
+                }
+            }
+            rNum++;
         }
 
         // ----- Excelファイルを ByteArray に書き込む -----
@@ -274,32 +321,32 @@ public class ExcelHelper {
     }
 
     public static ByteArrayInputStream createTemplate() {
-    XSSFWorkbook workbook = new XSSFWorkbook();
-    XSSFSheet sheet = workbook.createSheet("インポート用テンプレート");
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("インポート用テンプレート");
 
-    // ヘッダー行の作成
-    Row headerRow = sheet.createRow(0);
-    
-    // 必須および任意の列名（仕様書に合わせて定義）
-    String[] headers = {"企業ID", "企業名", "住所", "郵便番号", "登録日", "備考"};
-    
-    // スタイル設定（黄色い背景などで目立たせると親切ですが、まずは標準でOK）
-    for (int i = 0; i < headers.length; i++) {
-        headerRow.createCell(i).setCellValue(headers[i]);
-        // カラム幅を自動調整（データがないとうまく動かないこともありますが念のため）
-        sheet.setColumnWidth(i, 4000); 
+        // ヘッダー行の作成
+        Row headerRow = sheet.createRow(0);
+
+        // 必須および任意の列名（仕様書に合わせて定義）
+        String[] headers = { "企業ID", "企業名", "住所", "郵便番号", "登録日", "備考" };
+
+        // スタイル設定（黄色い背景などで目立たせると親切ですが、まずは標準でOK）
+        for (int i = 0; i < headers.length; i++) {
+            headerRow.createCell(i).setCellValue(headers[i]);
+            // カラム幅を自動調整（データがないとうまく動かないこともありますが念のため）
+            sheet.setColumnWidth(i, 4000);
+        }
+
+        // 入力例としてコメントを入れたり、2行目に例を入れるのもアリですが、
+        // まずは「ヘッダーのみ」で返します。
+
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            workbook.write(bos);
+            workbook.close();
+            return new ByteArrayInputStream(bos.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("テンプレート作成中にエラーが発生しました", e);
+        }
     }
-
-    // 入力例としてコメントを入れたり、2行目に例を入れるのもアリですが、
-    // まずは「ヘッダーのみ」で返します。
-
-    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-        workbook.write(bos);
-        workbook.close();
-        return new ByteArrayInputStream(bos.toByteArray());
-    } catch (IOException e) {
-        throw new RuntimeException("テンプレート作成中にエラーが発生しました", e);
-    }
-}
 
 }
